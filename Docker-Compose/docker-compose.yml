@@ -93,6 +93,23 @@ services:
       - ./kibana-certificate.pem:/usr/share/kibana/config/kibana-certificate.pem
       - ./kibana-privatekey.pem:/usr/share/kibana/config/kibana-privatekey.pem
       - ./elastic-certificate.pem:/usr/share/kibana/config/elastic-certificate.pem
+      
+  logstash:
+    image: logstash/logstash:7.10.2
+    container_name: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./rootCA.pem:/usr/share/logstash/config/rootCA.pem
+      - ./lgs-certificate.pem:/usr/share/logstash/config/lgs-certificate.pem
+      - ./lgs-privatekey.pem:/usr/share/logstash/config/lgs-privatekey.pem
+    ports:
+      - "5011:5011"
+      - "5044:5044"
+    networks:
+      - odfe-net
+    depends_on:
+      - odfe-node1
 volumes:
   odfe-data1:
   odfe-data2:
