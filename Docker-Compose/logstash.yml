@@ -1,0 +1,6 @@
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.username: admin
+xpack.monitoring.elasticsearch.password: mypass
+xpack.monitoring.elasticsearch.hosts: ["https://odfe-node1:9200"]
+xpack.monitoring.elasticsearch.ssl.certificate_authority: /usr/share/logstash/config/rootCA.pem
+xpack.monitoring.elasticsearch.ssl.verification_mode: "none"
