@@ -34,3 +34,10 @@ POST my-index-000001/_doc/
   }
 }
 ```
+
+### OIDC 
+
+```
+curl https://login.microsoftonline.com/<TENANT_ID>/v2.0/.well-known/openid-configuration | jq
+https://gist.github.com/paulgrav/31909667f96614a645b1ceec5b9b06b0
+```
