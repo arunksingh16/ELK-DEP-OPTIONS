@@ -1,7 +1,7 @@
 version: '3'
 services:
   odfe-node1:
-    image: elasticsearch:7.10.2
+    image: singharunk/elasticsearch:7.10.2-plugin-nodemo
     container_name: odfe-node1
     environment:
       - cluster.name=odfe-cluster
@@ -38,7 +38,7 @@ services:
     networks:
       - odfe-net
   odfe-node2:
-    image: elasticsearch:7.10.2.84305
+    image: singharunk/elasticsearch:7.10.2-plugin-nodemo
     container_name: odfe-node2
     environment:
       - cluster.name=odfe-cluster
@@ -76,7 +76,7 @@ services:
     networks:
       - odfe-net
   kibana:
-    image: kibana:7.10.2
+    image: singharunk/kibana:7.10.2-plugin
     container_name: odfe-kibana
     ports:
       - 5601:5601
