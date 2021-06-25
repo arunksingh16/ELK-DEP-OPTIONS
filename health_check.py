@@ -1,7 +1,7 @@
 import json
 import time
 import requests
-results = requests.get("http://localhost:9200/_cluster/health")
+
 i = 0
 # The script will run for 100 seconds 
 while i in range(100):
