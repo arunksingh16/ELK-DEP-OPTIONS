@@ -1,0 +1,480 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: elk-elasticsearch-headless
+  namespace: mykube
+spec:
+  clusterIP: None
+  ports:
+  - name: http
+    port: 9200
+  - name: transport
+    port: 9300
+  publishNotReadyAddresses: true
+  selector:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    esMajorVersion: "7"
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: elk-elasticsearch
+  namespace: mykube
+spec:
+#  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elk-elasticsearch
+      cluster: dev
+      env: poc
+  serviceName: elk-elasticsearch-headless
+  template:
+    metadata:
+      labels:
+        app: elk-elasticsearch
+        cluster: dev
+        env: poc
+      name: elk-elasticsearch
+    spec:
+      initContainers:
+      - name: keystore
+        image: singharunk/elasticsearch:7.10.2-plugin
+        imagePullPolicy: "Always"
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 2Gi
+        command:
+        - sh
+        - -c
+        - |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          elasticsearch-keystore create
+
+          for i in /tmp/keystoreSecrets/*/*; do
+            key=$(basename $i)
+            echo "Adding file $i to keystore key $key"
+            elasticsearch-keystore add-file "$key" "$i"
+          done
+
+          # Add the bootstrap password since otherwise the Elasticsearch entrypoint tries to do this on startup
+          if [ ! -z ${ELASTIC_PASSWORD+x} ]; then
+            echo 'Adding env $ELASTIC_PASSWORD to keystore as key bootstrap.password'
+            echo "$ELASTIC_PASSWORD" | elasticsearch-keystore add -x bootstrap.password
+          fi
+
+          cp -a /usr/share/elasticsearch/config/elasticsearch.keystore /tmp/keystore/
+
+        env: 
+          - name: ELASTIC_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: elk-elasticsearch-user
+          - name: ELASTIC_USERNAME
+            value: elastic
+          - name: ES_JAVA_OPTS
+            value: "-Xmx1g -Xms1g"
+        envFrom: 
+          []
+        volumeMounts:
+          - name: keystore
+            mountPath: /tmp/keystore
+          - name: keystore-elastic-azure-secret
+            mountPath: /tmp/keystoreSecrets/elastic-azure-secret
+      containers:
+      - env:
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: cluster.initial_master_nodes
+          value: elk-elasticsearch-0,elk-elasticsearch-1,elk-elasticsearch-2
+        - name: discovery.seed_hosts
+          value: elk-elasticsearch-headless
+        - name: cluster.name
+          value: elasticsearch
+        - name: network.host
+          value: 0.0.0.0
+        - name: node.data
+          value: "true"
+        - name: node.ingest
+          value: "true"
+        - name: node.master
+          value: "true"
+        - name: node.remote_cluster_client
+          value: "true"
+        - name: ES_JAVA_OPTS
+          value: "-Xmx3g -Xms3g"
+        - name: ELASTIC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: elk-elasticsearch-user
+        - name: ELASTIC_USERNAME
+          value: elastic
+        image: singharunk/elasticsearch:7.10.2-plugin
+        imagePullPolicy: Always
+        name: elasticsearch
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        resources:
+          limits:
+            cpu: 1
+            memory: 4Gi
+          requests:
+            cpu: 1
+            memory: 4Gi
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: elk-elasticsearch
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          name: esconfig
+          subPath: elasticsearch.yml
+        - mountPath: /usr/share/elasticsearch/config/elastic-certificate.pem
+          name: esnode
+          subPath: elastic-certificate.pem
+        - mountPath: /usr/share/elasticsearch/config/elastic-privatekey.pem
+          name: privatekey
+          subPath: elastic-privatekey.pem
+        - mountPath: /usr/share/elasticsearch/config/rootCA.pem
+          name: rootca
+          subPath: rootCA.pem
+        - mountPath: /usr/share/elasticsearch/config/admin.pem
+          name: admincert
+          subPath: admin.pem
+        - mountPath: /usr/share/elasticsearch/config/admin-key.pem
+          name: adminkey
+          subPath: admin-key.pem
+        - mountPath: /usr/share/elasticsearch/config/root-ca.pem
+          name: adminroot
+          subPath: root-ca.pem
+        - mountPath: /usr/share/elasticsearch/config/node.pem
+          name: nodecert
+          subPath: node.pem
+        - mountPath: /usr/share/elasticsearch/config/node-key.pem
+          name: nodekey
+          subPath: node-key.pem
+        - mountPath: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+          name: internalusers
+          subPath: internal_users.yml
+        - mountPath: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/config.yml
+          name: auth-config
+          subPath: config.yml
+        - mountPath: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
+          name: rolemapping
+          subPath: roles_mapping.yml
+        - name: keystore
+          mountPath: /usr/share/elasticsearch/config/elasticsearch.keystore
+          subPath: elasticsearch.keystore
+      volumes:
+      - configMap:
+          name: elk-elasticsearch-config
+        name: esconfig
+      - name: esnode
+        secret:
+          secretName: esnode
+      - name: privatekey
+        secret:
+          secretName: privatekey
+      - name: rootca
+        secret:
+          secretName: rootca
+      - name: internalusers
+        configMap:
+          name: internalusers
+      - name: auth-config
+        configMap: 
+          name: auth-config
+      - name: rolemapping
+        configMap: 
+          name: rolemapping
+      - name: keystore
+        emptyDir: {}
+      - name: keystore-elastic-azure-secret
+        secret: 
+          secretName: elk-elastic-azure-secret
+      - name: adminkey
+        secret:
+          secretName: adminkey
+      - name: admincert
+        secret:
+          secretName: admincert
+      - name: adminroot
+        secret:
+          secretName: adminroot            
+      - name: nodecert
+        secret:
+          secretName: nodecert
+      - name: nodekey
+        secret:
+          secretName: nodekey          
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      name: elk-elasticsearch
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: default
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: auth-config
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  namespace: mykube
+data:
+  config.yml: |
+    ---
+    _meta:
+      type: "config"
+      config_version: 2
+
+    config:
+      dynamic:
+        http:
+          anonymous_auth_enabled: false
+        authc:
+          basic_internal_auth_domain:
+            order: 0
+            description: "HTTP basic authentication using the internal user database"
+            http_enabled: true
+            transport_enabled: true
+            http_authenticator:
+              type: basic
+              challenge: true
+            authentication_backend:
+              type: internal
+            authorization_backend:
+              type: internal
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rolemapping
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+data:
+  roles_mapping.yml: |
+    ---
+
+    _meta:
+      type: "rolesmapping"
+      config_version: 2
+
+    all_access:
+      reserved: false
+      backend_roles:
+      - "admin"
+      users:
+      - "arun"
+      description: "Maps admin to all_access"
+
+    own_index:
+      reserved: false
+      users:
+      - "*"
+      description: "Allow full access to an index named like the username"
+
+    kibana_user:
+      reserved: false
+      backend_roles:
+      - "kibanauser"
+      - "Developers"
+
+      description: "Maps kibanauser to kibana_user"
+
+    readall:
+      reserved: false
+      backend_roles:
+      - "readall"
+      - "Developers"
+
+    manage_snapshots:
+      reserved: false
+      backend_roles:
+      - "snapshotrestore"
+      - "Developers"
+
+    kibana_server:
+      reserved: true
+      users:
+      - "kibanaserver"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: internalusers
+data:
+  internal_users.yml: |
+    ---
+    # This is the internal user database
+    # The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
+
+    _meta:
+      type: "internalusers"
+      config_version: 2
+
+    # Define your internal users here
+
+    ## Demo users
+
+    admin:
+      hash: "$2a$12$VcCDgh2NDk07JGN0rjGbM.Ad41qVR/YFJcgHp0UGns5JDymv..TOG"
+      reserved: true
+      backend_roles:
+      - "admin"
+      description: "Demo admin user"
+
+    kibanaserver:
+      hash: "$2a$12$4AcgAt3xwOWadA5s5blL6ev39OXDNhmOesEoo33eZtrq2N0YrU3H."
+      reserved: true
+      description: "Demo kibanaserver user"
+
+    kibanaro:
+      hash: "$2a$12$JJSXNfTowz7Uu5ttXfeYpeYE0arACvcwlPBStB1F.MI7f0U9Z4DGC"
+      reserved: false
+      backend_roles:
+      - "kibanauser"
+      - "readall"
+      attributes:
+        attribute1: "value1"
+        attribute2: "value2"
+        attribute3: "value3"
+      description: "Demo kibanaro user"
+
+    logstash:
+      hash: "$2a$12$u1ShR4l4uBS3Uv59Pa2y5.1uQuZBrZtmNfqB3iM/.jL0XoV9sghS2"
+      reserved: false
+      backend_roles:
+      - "logstash"
+      description: "Demo logstash user"
+
+    readall:
+      hash: "$2a$12$ae4ycwzwvLtZxwZ82RmiEunBbIPiAmGZduBAjKN0TXdwQFtCwARz2"
+      reserved: false
+      backend_roles:
+      - "readall"
+      description: "Demo readall user"
+
+    snapshotrestore:
+      hash: "$2y$12$DpwmetHKwgYnorbgdvORCenv4NAK8cPUg8AI6pxLCuWf/ALc0.v7W"
+      reserved: false
+      backend_roles:
+      - "snapshotrestore"
+      description: "Demo snapshotrestore user"
+      
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: elk-elasticsearch-config
+  namespace: mykube
+data:
+  elasticsearch.yml: |
+    xpack.security.enabled: false
+    opendistro_security.allow_unsafe_democertificates: true
+    opendistro_security.ssl.transport.enforce_hostname_verification: false
+    opendistro_security.ssl.http.enabled_protocols:
+      - "TLSv1.2"
+    opendistro_security.ssl.http.enabled: true
+    opendistro_security.ssl.http.pemcert_filepath: /usr/share/elasticsearch/config/elastic-certificate.pem
+    opendistro_security.ssl.http.pemkey_filepath: /usr/share/elasticsearch/config/elastic-privatekey.pem
+    opendistro_security.ssl.http.pemtrustedcas_filepath: /usr/share/elasticsearch/config/rootCA.pem
+    
+    opendistro_security.ssl.transport.pemcert_filepath: node.pem
+    opendistro_security.ssl.transport.pemkey_filepath: node-key.pem
+    opendistro_security.ssl.transport.pemtrustedcas_filepath: root-ca.pem
+    opendistro_security.ssl.http.clientauth_mode: NONE
+    
+
+    opendistro_security.allow_default_init_securityindex: false
+    
+    opendistro_security.authcz.admin_dn:
+      - 'CN=admin,OU=PDH,O=PDH,L=Stamford,ST=CT,C=US'
+    opendistro_security.nodes_dn:
+      - 'CN=elasticsearch-node,OU=PDH,O=PDH,L=Stamford,ST=CT,C=US'
+    opendistro_security.audit.type: internal_elasticsearch
+    opendistro_security.enable_snapshot_restore_privilege: true
+    opendistro_security.check_snapshot_restore_write_privileges: true
+    opendistro_security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
+    opendistro_security.system_indices.enabled: true
+    opendistro_security.system_indices.indices: [".opendistro-alerting-config", ".opendistro-alerting-alert*", ".opendistro-anomaly-results*", ".opendistro-anomaly-detector*", ".opendistro-anomaly-checkpoints", ".opendistro-anomaly-detection-state", ".opendistro-reports-*", ".opendistro-notifications-*", ".opendistro-notebooks", ".opendistro-asynchronous-search-response*"]
+    cluster.routing.allocation.disk.threshold_enabled: false
+    node.max_local_storage_nodes: 3
+    # log4j settings
+    opendistro_security.audit.config.log4j.logger_name: auditlogger
+    opendistro_security.audit.config.log4j.level: INFO
+    # Authentication cache timeout in minutes
+    opendistro_security.cache.ttl_minutes: 30
+    
+---
+apiVersion: v1
+metadata:
+  name: elk-elasticsearch-user
+  namespace: mykube
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+data:
+  password: <base64 data>
+kind: Secret
+type: Opaque
+---
+apiVersion: v1
+metadata:
+  name: elk-elastic-azure-secret
+  namespace: mykube
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+
+type: Opaque
+data:
+  azure.client.default.account: <base64 data>
+  azure.client.default.key: <base64 data>
+kind: Secret
+
+---
+   
