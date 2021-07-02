@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: elk-kibana
+    cluster: dev
+    env: poc
+  name: elk-kibana
+  namespace: mykube
+spec:
+  ports:
+  - name: http
+    port: 5601
+    protocol: TCP
+    targetPort: 5601
+  selector:
+    app: elk-kibana
+    cluster: dev
+    env: poc
+  type: ClusterIP
+  
+  ---
+  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: elk-kibana
+    cluster: dev
+    env: poc
+  name: elk-kibana
+  namespace: mykube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elk-kibana
+      cluster: dev
+      env: poc
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: elk-kibana
+        cluster: dev
+        env: poc
+    spec:
+      containers:
+      - env:
+        - name: ELASTICSEARCH_URL
+          value: https://elk-elasticsearch.mykube.svc.cluster.local:9200
+        - name: SERVER_HOST
+          value: 0.0.0.0
+        - name: ELASTICSEARCH_USERNAME
+          value: admin
+        - name: ELASTICSEARCH_PASSWORD
+          value: admin
+        - name: KIBANA_ENCRYPTION_KEY
+          value: xxxvvvvxxxxvvvvxxxxvvvv
+        image: singharunk/kibana:7.10.2-plugin
+        imagePullPolicy: Always
+        name: kibana
+        ports:
+        - containerPort: 5601
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 2Gi
+        volumeMounts:
+        - mountPath: /usr/share/kibana/config/kibana-certificate.pem
+          name: kibana-certificate-pem
+          subPath: kibana-certificate.pem
+        - mountPath: /usr/share/kibana/config/kibana.yml
+          name: kibanaconfig
+          subPath: kibana.yml
+        - mountPath: /usr/share/kibana/config/kibana-privatekey.pem
+          name: privatekey
+          subPath: kibana-privatekey.pem
+        - mountPath: /usr/share/kibana/config/rootCA.pem
+          name: rootca
+          subPath: rootCA.pem
+        - mountPath: /usr/share/kibana/config/elastic-certificate.pem
+          name: esnode
+          subPath: elastic-certificate.pem
+      volumes:
+      - name: kibana-certificate-pem
+        secret:
+          secretName: elk-kibana-certificate-pem
+      - configMap:
+          name: elk-kibana-config
+        name: kibanaconfig
+      - name: privatekey
+        secret:
+          secretName: kibanaprivatekey
+      - name: rootca
+        secret:
+          secretName: rootca
+      - name: esnode
+        secret:
+          secretName: esnode
