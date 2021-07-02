@@ -113,8 +113,6 @@ spec:
                 name: elk-elasticsearch-user
           - name: ELASTIC_USERNAME
             value: elastic
-          - name: ES_JAVA_OPTS
-            value: "-Xmx1g -Xms1g"
         envFrom: 
           []
         volumeMounts:
@@ -144,8 +142,6 @@ spec:
           value: "true"
         - name: node.remote_cluster_client
           value: "true"
-        - name: ES_JAVA_OPTS
-          value: "-Xmx3g -Xms3g"
         - name: ELASTIC_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -494,6 +490,4 @@ type: Opaque
 data:
   azure.client.default.account: <base64 data>
   azure.client.default.key: <base64 data>
-
-
 ---
