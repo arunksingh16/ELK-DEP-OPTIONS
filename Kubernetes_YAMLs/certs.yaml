@@ -1,0 +1,117 @@
+# root ca for admin and node certs/keys
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: adminroot
+data:
+  root-ca.pem: <base64 data>
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: nodekey
+data:
+  node-key.pem: <base64 data>
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: nodecert
+data:
+  node.pem: <base64 data>
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: privatekey
+data:
+  elastic-privatekey.pem: <base64 data>
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: admincert
+data:
+  admin.pem: <base64 data>
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: adminkey
+data:
+  admin-key.pem: <base64 data>
+---
+# Elastic and Kibana CA
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: rootca
+data:
+  rootCA.pem: <base64 data>
+---
+# Kibana Private Key
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: kibanaprivatekey
+data:
+  kibana-privatekey.pem: <base64 data>
+---
+# Kibana Certificate
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: elk-kibana-certificate-pem
+  namespace: mykube
+data:
+  kibana-certificate.pem: <base64 data>
+---
+# Elastic Certificate
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  name: esnode
+data:
+  elastic-certificate.pem: <base64 data>
