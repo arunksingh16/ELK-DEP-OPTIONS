@@ -5,6 +5,29 @@ metadata:
     app: elk-elasticsearch
     cluster: dev
     env: poc
+  name: elk-elasticsearch
+  namespace: mykube
+spec:
+  ports:
+  - name: http
+    port: 9200
+    protocol: TCP
+  - name: transport
+    port: 9300
+    protocol: TCP
+  selector:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
   name: elk-elasticsearch-headless
   namespace: mykube
 spec:
