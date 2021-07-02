@@ -57,7 +57,7 @@ spec:
         - name: ELASTICSEARCH_PASSWORD
           value: admin
         - name: KIBANA_ENCRYPTION_KEY
-          value: xxxvvvvxxxxvvvvxxxxvvvv
+          value: xxxvvvvxxxxvvvvxxxxvvvvrrrrrrttttttthhhhhh
         image: singharunk/kibana:7.10.2-plugin
         imagePullPolicy: Always
         name: kibana
