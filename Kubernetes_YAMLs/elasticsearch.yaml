@@ -297,8 +297,7 @@ data:
               challenge: true
             authentication_backend:
               type: internal
-            authorization_backend:
-              type: internal
+
 ---
 apiVersion: v1
 kind: ConfigMap
