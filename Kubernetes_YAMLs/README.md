@@ -5,6 +5,8 @@ This deployment is special as instead of using default X-PACK plugin for securit
 ```
 Step 1: Generate required Certificates and Keys base64 enc value in certs.yaml
 Step 2: Update base64 enc Azure Storage Accnt and Key value in Elasticsearch YAML
+Step 3: Make sure Max Virtual Memory is updated on worker nodes
+        sysctl -w vm.max_map_count=262144
 Step 3: Execute all YAMLs
 ```
 
