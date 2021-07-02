@@ -19,7 +19,7 @@ spec:
     env: poc
   type: ClusterIP
   
-  ---
+---
   
 apiVersion: apps/v1
 kind: Deployment
