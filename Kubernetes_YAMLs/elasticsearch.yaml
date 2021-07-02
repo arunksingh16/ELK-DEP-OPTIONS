@@ -420,7 +420,6 @@ data:
     opendistro_security.ssl.http.pemcert_filepath: /usr/share/elasticsearch/config/elastic-certificate.pem
     opendistro_security.ssl.http.pemkey_filepath: /usr/share/elasticsearch/config/elastic-privatekey.pem
     opendistro_security.ssl.http.pemtrustedcas_filepath: /usr/share/elasticsearch/config/rootCA.pem
-    
     opendistro_security.ssl.transport.pemcert_filepath: node.pem
     opendistro_security.ssl.transport.pemkey_filepath: node-key.pem
     opendistro_security.ssl.transport.pemtrustedcas_filepath: root-ca.pem
@@ -428,11 +427,10 @@ data:
     
 
     opendistro_security.allow_default_init_securityindex: false
-    
     opendistro_security.authcz.admin_dn:
-      - 'CN=admin,OU=PDH,O=PDH,L=Stamford,ST=CT,C=US'
+      - 'CN=admin,OU=DUMMY,O=DUMMY,L=DUMMY,ST=DUMMY,C=US'
     opendistro_security.nodes_dn:
-      - 'CN=elasticsearch-node,OU=PDH,O=PDH,L=Stamford,ST=CT,C=US'
+      - 'CN=elasticsearch-node,OU=DUMMY,O=DUMMY,L=DUMMY,ST=DUMMY,C=US'
     opendistro_security.audit.type: internal_elasticsearch
     opendistro_security.enable_snapshot_restore_privilege: true
     opendistro_security.check_snapshot_restore_write_privileges: true
@@ -457,11 +455,12 @@ metadata:
     cluster: dev
     env: poc
 data:
-  password: <base64 data>
+  password: YWRtaW4K
 kind: Secret
 type: Opaque
 ---
 apiVersion: v1
+kind: Secret
 metadata:
   name: elk-elastic-azure-secret
   namespace: mykube
@@ -469,12 +468,10 @@ metadata:
     app: elk-elasticsearch
     cluster: dev
     env: poc
-
 type: Opaque
 data:
   azure.client.default.account: <base64 data>
   azure.client.default.key: <base64 data>
-kind: Secret
+
 
 ---
-   
