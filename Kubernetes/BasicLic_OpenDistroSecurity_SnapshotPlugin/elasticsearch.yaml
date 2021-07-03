@@ -6,7 +6,7 @@ metadata:
     cluster: dev
     env: poc
   name: elk-elasticsearch
-  namespace: mykube
+  
 spec:
   ports:
   - name: http
@@ -29,7 +29,7 @@ metadata:
     cluster: dev
     env: poc
   name: elk-elasticsearch-headless
-  namespace: mykube
+  
 spec:
   clusterIP: None
   ports:
@@ -53,7 +53,7 @@ metadata:
     cluster: dev
     env: poc
   name: elk-elasticsearch
-  namespace: mykube
+  
 spec:
 #  podManagementPolicy: Parallel
   replicas: 3
@@ -270,7 +270,7 @@ metadata:
     app: elk-elasticsearch
     cluster: dev
     env: poc
-  namespace: mykube
+  
 data:
   config.yml: |
     ---
@@ -426,7 +426,7 @@ metadata:
     cluster: dev
     env: poc
   name: elk-elasticsearch-config
-  namespace: mykube
+  
 data:
   elasticsearch.yml: |
     xpack.security.enabled: false
@@ -467,7 +467,7 @@ data:
 apiVersion: v1
 metadata:
   name: elk-elasticsearch-user
-  namespace: mykube
+  
   labels:
     app: elk-elasticsearch
     cluster: dev
@@ -481,7 +481,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: elk-elastic-azure-secret
-  namespace: mykube
+  
   labels:
     app: elk-elasticsearch
     cluster: dev

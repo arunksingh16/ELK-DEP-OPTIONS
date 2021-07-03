@@ -1,20 +1,27 @@
-# Source: elasticsearch/templates/service.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: elastic-azure-secret
+  labels:
+    app: elk-elasticsearch
+    cluster: dev
+    env: poc
+type: Opaque
+data:
+  azure.client.default.account: <base64 data>
+  azure.client.default.key: <base64 data>
+---
+
+---
 kind: Service
 apiVersion: v1
 metadata:
   name: elasticsearch-master
   labels:
-    heritage: "Helm"
-    release: "test"
-    chart: "elasticsearch"
     app: "elasticsearch-master"
-  annotations:
-    {}
 spec:
   type: ClusterIP
   selector:
-    release: "test"
-    chart: "elasticsearch"
     app: "elasticsearch-master"
   ports:
   - name: http
@@ -30,9 +37,6 @@ apiVersion: v1
 metadata:
   name: elasticsearch-master-headless
   labels:
-    heritage: "Helm"
-    release: "test"
-    chart: "elasticsearch"
     app: "elasticsearch-master"
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
@@ -55,9 +59,6 @@ kind: StatefulSet
 metadata:
   name: elasticsearch-master
   labels:
-    heritage: "Helm"
-    release: "test"
-    chart: "elasticsearch"
     app: "elasticsearch-master"
   annotations:
     esMajorVersion: "7"
@@ -74,13 +75,10 @@ spec:
     metadata:
       name: "elasticsearch-master"
       labels:
-        release: "test"
-        chart: "elasticsearch"
         app: "elasticsearch-master"
       annotations:
     spec:
       terminationGracePeriodSeconds: 120
-         
       enableServiceLinks: true
       initContainers:
       - name: keystore

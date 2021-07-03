@@ -6,7 +6,7 @@ metadata:
     cluster: dev
     env: poc
   name: elk-kibana
-  namespace: mykube
+  
 spec:
   ports:
   - name: http
@@ -29,7 +29,7 @@ metadata:
     cluster: dev
     env: poc
   name: elk-kibana
-  namespace: mykube
+  
 spec:
   replicas: 1
   selector:
@@ -112,7 +112,7 @@ metadata:
     cluster: dev
     env: poc
   name: elk-kibana-config
-  namespace: mykube
+  
 data:
   kibana.yml: |
     elasticsearch.hosts: ${ELASTICSEARCH_URL}

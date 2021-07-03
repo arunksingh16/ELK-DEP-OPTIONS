@@ -4,11 +4,20 @@ This deployment is special as instead of using default X-PACK plugin for securit
 
 ```
 Step 1: Generate required Certificates and Keys base64 enc value in certs.yaml
+
 Step 2: Update base64 enc Azure Storage Accnt and Key value in Elasticsearch YAML
+
 Step 3: Make sure Max Virtual Memory is updated on worker nodes
         sysctl -w vm.max_map_count=262144
+
 Step 3: Execute all YAMLs
+
+Step 4: Login in Elaticsearch POD and deploy OpenDistro Security Plugin
 ```
+
+
+`Note:` Azure Storage Account and Key, dont put them in double quotes.
+
 
 I am using self signed certificate for this -
 
@@ -40,5 +49,13 @@ rm admin.csr
 rm node-key-temp.pem
 rm node.csr
 rm elastic.csr elastic-key-temp.pem
+
+```
+
+
+Deploying OpenDistro Security Plugin
+
+```
+export JAVA_HOME=/usr/share/elasticsearch/jdk; export PATH=$PATH:JAVA_HOME=/usr/share/elasticsearch/jdk/bin; cd /usr/share/elasticsearch/plugins/opendistro_security/tools/; ./securityadmin.sh -cacert /usr/share/elasticsearch/config/root-ca.pem -cert /usr/share/elasticsearch/config/admin.pem -key /usr/share/elasticsearch/config/admin-key.pem -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig -nhnv
 
 ```
