@@ -1,0 +1,56 @@
+# Install ECK operator first - kubectl apply -f https://download.elastic.co/downloads/eck/1.6.0/all-in-one.yaml
+
+apiVersion: elasticsearch.k8s.elastic.co/v1alpha1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch-sample
+spec:
+
+  version: 7.10.2
+
+  nodes:
+  - nodeCount: 1
+    config:
+      node.master: true
+      node.data: true
+      node.ingest: true
+      node.ml: false
+      xpack.ml.enabled: false
+      cluster.remote.connect: false
+    podTemplate:
+      spec:
+        initContainers:
+        - name: install-plugins
+          command:
+          - sh
+          - -c
+          - |
+            bin/elasticsearch-plugin install --batch repository-azure
+        containers:
+          - name: elasticsearch
+            resources:
+              limits:
+                memory: 2Gi
+        volumes:
+        - name: elasticsearch-data
+          emptyDir: {}
+    # volumeClaimTemplates:
+    # - metadata:
+    #     name: data
+    #   spec:
+    #     accessModes:
+    #     - ReadWriteOnce
+    #     resources:
+    #       requests:
+    #         storage: 2Gi  
+
+---
+apiVersion: kibana.k8s.elastic.co/v1alpha1
+kind: Kibana
+metadata:
+  name: kibana-sample
+spec:
+  version: 7.1.0
+  nodeCount: 1
+  elasticsearchRef:
+    name: "elasticsearch-sample"
