@@ -1,19 +1,27 @@
 ### ELASTICSEARCH-KIBANA DEPLOYMENT USING PLAIN YAMLs
 
-This deployment is special as instead of using default X-PACK plugin for security we are using OPENDISTRO security plugin. The Elastic/Kibana image used for the deployment are customised to add OpenDistro Plugin. Deployment also uses certificates to expose Elastic and Kibana over SSL.
+Imp Points 
 
-```
-Step 1: Update required Certificates and Keys base64 enc value in certs.yaml as per your requirement. I am using self signed for the time.
+- This deployment is special as instead of using default X-PACK plugin for security we are using OPENDISTRO security plugin. 
+- The Elastic/Kibana image used for the deployment are customised to add OpenDistro Plugin. 
+- Deployment also uses certificates to expose Elastic and Kibana over SSL.
+- The Elastic Image used for this deployment consists Azure Snapshot rep plugin as well. 
+- The deployment also supports Azure Snapshot config deployment.
 
-Step 2: Update base64 enc Azure Storage Accnt and Key value in Elasticsearch YAML. Please note Azure Storage Account and Key, dont put them in double quotes.
 
-Step 3: Make sure Max Virtual Memory is updated on worker nodes
-        sysctl -w vm.max_map_count=262144
+Steps for deployment 
 
-Step 3: Execute all YAMLs
+- Step 1: Update required Certificates and Keys base64 enc value in certs.yaml as per your requirement. I am using self signed for the time.
 
-Step 4: Login in Elaticsearch POD and deploy OpenDistro Security Plugin
-```
+- Step 2: Update base64 enc Azure Storage Accnt and Key value in Elasticsearch YAML. Please note Azure Storage Account and Key, dont put them in double quotes.
+
+- Step 3: Make sure Max Virtual Memory is updated on worker nodes
+        `sysctl -w vm.max_map_count=262144`
+
+- Step 3: Execute all YAMLs
+
+- Step 4: Login in Elaticsearch POD and deploy OpenDistro Security Plugin
+
 
 
 ### Generating Self Signed Certs

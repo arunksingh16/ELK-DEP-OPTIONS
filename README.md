@@ -2,11 +2,16 @@
 
 This repository contains various deployment options to build a elasticsearch cluster for use. 
 
-- Using Docker Compose
-- Using Docker Only
-- Using Kubernetes
-- OpenDistro Elastic
-- 
+- Docker Only
+- Docker Compose + No Auth [BASIC LICENSE]
+- Docker Compose + AD Auth [BASIC LICENSE]
+- Docker Compose + OpenID Connect Auth [BASIC LICENSE]
+- Standard Kubernetes + Snapshot Plugin + No Auth [BASIC LICENSE]
+- Standard Kubernetes using ECK + Snapshot Plugin + Basic Auth [BASIC LICENSE]
+- Standard Kubernetes + Snapshot Plugin + OpenDistro Security Plugin + Basic Auth [BASIC LICENSE]
+- Standard Kubernetes + Snapshot Plugin + OpenDistro Security Plugin + AD Auth [BASIC LICENSE]
+- Standard Kubernetes + Snapshot Plugin + OpenDistro Security Plugin + OpenID Connect Auth [BASIC LICENSE]
+- OpenDistro Elasticsearch
 
 Apart from this repository contains examples of Elasticsearch deployment using OpenDistro Security plugin instead of X-Pack. 
 
@@ -22,38 +27,7 @@ sysctl -w vm.max_map_count=262144
 
 
 
-## USING ELASTICSEARCH APIs
 
-### Create a Simple Index with record
-
-```
-
-POST index-name/person/1 
-{
-    "name" : "Arun",
-    "lastname" : "Ku",
-    "job_description" : "DevOps"
-}
-
-# get GET 
-
-curl -X GET "localhost:9200/mindex-name/person/1?pretty"
-
-
-
-
-
-# Create document IDs automatically
-
-POST my-index-000001/_doc/
-{
-  "@timestamp": "2099-11-15T13:12:00",
-  "message": "GET /search HTTP/1.1 200 1070000",
-  "user": {
-    "id": "kimchy"
-  }
-}
-```
 
 ### OIDC 
 
