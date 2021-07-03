@@ -1,8 +1,28 @@
-# ELK_Deployment_Options
+# ELK-DEP-OPTIONS
+
+This repository contains various deployment options to build a elasticsearch cluster for use. 
+
+- Using Docker Compose
+- Using Docker Only
+- Using Kubernetes
+- OpenDistro Elastic
+- 
+
+Apart from this repository contains examples of Elasticsearch deployment using OpenDistro Security plugin instead of X-Pack. 
+
+
+Befor running any elasticsearch cluster on Kubernetes/Docker, make sure node has maximum number of memory map areas a process may have defined.
+
+```
+sysctl -w vm.max_map_count=262144
+
+```
 
 
 
 
+
+## USING ELASTICSEARCH APIs
 
 ### Create a Simple Index with record
 
