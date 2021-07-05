@@ -4,7 +4,13 @@
 If you are frustrated with deprecation logging warnings!
 
 ```
-# transient
+################ transient ################
+PUT /_cluster/settings
+{
+  "transient" : {
+    "logger.deprecation.level" : "ERROR"
+  }
+}
 PUT /_cluster/settings
 {
   "transient" : {
@@ -12,7 +18,7 @@ PUT /_cluster/settings
   }
 }
 
-# persistent
+################  persistent ################
 PUT /_cluster/settings
 {
   "persistent" : {
@@ -20,4 +26,10 @@ PUT /_cluster/settings
   }
 }
 
+PUT /_cluster/settings
+{
+  "persistent" : {
+    "logger.org.elasticsearch.deprecation" : "ERROR"
+  }
+}
 ```
