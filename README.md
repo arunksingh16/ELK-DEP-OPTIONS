@@ -26,12 +26,27 @@ sysctl -w vm.max_map_count=262144
 
 
 
-
-
-
 ### OIDC 
 
 ```
 curl https://login.microsoftonline.com/<TENANT_ID>/v2.0/.well-known/openid-configuration | jq
 https://gist.github.com/paulgrav/31909667f96614a645b1ceec5b9b06b0
+```
+
+### LOGGING
+Module based logging. Find list of modules at - https://github.com/elastic/elasticsearch/tree/master/server/src/main/java/org/elasticsearch
+
+```
+PUT /_cluster/settings
+{
+  "transient": {
+    "logger.org.elasticsearch.http": "DEBUG",
+    "logger.org.elasticsearch.index": "DEBUG",
+    "logger.org.elasticsearch.rest" : "DEBUG",
+    "logger.org.elasticsearch.transport": "DEBUG",
+    "logger.org.elasticsearch.snapshots":"DEBUG",
+    "logger.org.elasticsearch.indices":"DEBUG"
+  }
+}
+
 ```
