@@ -36,6 +36,10 @@ https://gist.github.com/paulgrav/31909667f96614a645b1ceec5b9b06b0
 ### LOGGING
 Module based logging. Find list of modules at - https://github.com/elastic/elasticsearch/tree/master/server/src/main/java/org/elasticsearch
 
+3 ways to achieve -
+
+- By updating the cluster settings dynamically
+
 ```
 PUT /_cluster/settings
 {
@@ -49,4 +53,14 @@ PUT /_cluster/settings
   }
 }
 
+```
+- By setting the log level directly in elasticsearch.yml
+
+```
+logger.org.elasticsearch.transport: DEBUG
+
+```
+- By setting the log level directly in log4j2.properties
+```
+logger.transport.level = trace
 ```
