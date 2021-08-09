@@ -64,3 +64,18 @@ logger.org.elasticsearch.transport: DEBUG
 ```
 logger.transport.level = trace
 ```
+
+
+### Azure Snapshot Logging
+
+```
+PUT /_cluster/settings
+{
+  "transient": {
+    "logger.cloud.azure" : "DEBUG",
+    "logger.repositories.azure" : "DEBUG",
+    "logger.org.elasticsearch.snapshots":"DEBUG"
+  }
+}
+
+```
