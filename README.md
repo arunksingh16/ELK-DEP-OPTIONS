@@ -68,6 +68,45 @@ logger.transport.level = trace
 
 ### Azure Snapshot Logging
 
+Register 
+```
+PUT _snapshot/<nameofrepo>
+{
+  "type": "azure",
+  "settings": {
+
+	  "container": "<nameOfContainer>",
+	  "base_path" : "/"
+
+  }
+}
+```
+
+Verify Snapshot repo
+```
+POST /_snapshot/<name>/_verify
+```
+
+Take Backup of all cluster
+```
+PUT /_snapshot/<nameofrepo>/<snapshot-{now/d}>?wait_for_completion=true
+
+# more granual
+PUT /_snapshot/<nameofrepo>/snapshot_2?wait_for_completion=true
+{
+  "indices": "index_1,index_2",
+  "ignore_unavailable": true,
+  "include_global_state": false,
+  "metadata": {
+    "taken_by": "arun",
+    "taken_because": "backup"
+  }
+}
+```
+
+
+Increase Logging for debug
+
 ```
 PUT /_cluster/settings
 {
